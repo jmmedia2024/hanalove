@@ -1,0 +1,107 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ===============================================================
+    // Assumed Data Model
+    // ===============================================================
+    //
+    // Collection: users
+    // Fields: uid, email, displayName, photoURL, role, createdAt
+    //
+    // Collection: notices
+    // Fields: id, title, content, authorId, authorName, views, createdAt, updatedAt
+    //
+    // Collection: gallery
+    // Fields: id, title, description, imageUrls, authorId, authorName, createdAt, updatedAt
+    //
+    // ===============================================================
+
+    // ===============================================================
+    // Helper Functions
+    // ===============================================================
+
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    function isSuperAdmin() {
+      return isAuthenticated() && 
+        (get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'super_admin' ||
+         (request.auth.token.email == "20250114jl@gmail.com" && request.auth.token.email_verified == true));
+    }
+
+    function isContentManager() {
+      return isAuthenticated() && 
+        (get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'content_manager' || isSuperAdmin());
+    }
+
+    function hasOnlyAllowedFields(fields) {
+      return request.resource.data.keys().hasOnly(fields);
+    }
+
+    function isValidEmail(email) {
+      return email is string && email.matches("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$");
+    }
+
+    // ===============================================================
+    // Collection Rules
+    // ===============================================================
+
+    match /users/{userId} {
+      allow read: if isAuthenticated();
+      allow create: if isOwner(userId) && 
+                      hasOnlyAllowedFields(['uid', 'email', 'displayName', 'photoURL', 'role', 'createdAt']) &&
+                      request.resource.data.role == 'user'; // Default to user
+      allow update: if (isOwner(userId) && request.resource.data.role == resource.data.role) || isSuperAdmin();
+    }
+
+    match /notices/{noticeId} {
+      allow read: if true; // Publicly readable
+      allow create: if isContentManager();
+      allow update: if isContentManager();
+      allow delete: if isContentManager();
+    }
+
+    match /gallery/{galleryId} {
+      allow read: if true; // Publicly readable
+      allow create: if isContentManager();
+      allow update: if isContentManager();
+      allow delete: if isContentManager();
+    }
+
+    match /donations/{donationId} {
+      allow read: if isSuperAdmin();
+      allow create: if true; // Public can donate
+      allow update: if isSuperAdmin();
+      allow delete: if isSuperAdmin();
+    }
+
+    match /volunteers/{volunteerId} {
+      allow read: if isSuperAdmin();
+      allow create: if true; // Public can apply
+      allow update: if isSuperAdmin();
+      allow delete: if isSuperAdmin();
+    }
+
+    match /inquiries/{inquiryId} {
+      allow read: if isSuperAdmin();
+      allow create: if true; // Public can submit inquiries
+      allow update: if isSuperAdmin();
+      allow delete: if isSuperAdmin();
+    }
+
+    match /pages/{pageId} {
+      allow read: if true; // Publicly readable
+      allow create: if isContentManager();
+      allow update: if isContentManager();
+      allow delete: if isContentManager();
+    }
+  }
+}
+
+
