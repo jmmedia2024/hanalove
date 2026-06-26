@@ -17,7 +17,7 @@ const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
 // Sponsorship API Endpoint (PlanetScale PostgreSQL)
 app.post("/api/sponsorship", async (req, res) => {
-  if (!process.env.DATABASE_URL) {
+  if (!process.env.DATABASE_URL || !process.env.DATABASE_URL.startsWith("postgres")) {
     return res.status(503).json({ success: false, error: "Database not configured" });
   }
 
@@ -47,7 +47,7 @@ app.post("/api/sponsorship", async (req, res) => {
 });
 
 app.get("/api/sponsorship", async (req, res) => {
-  if (!process.env.DATABASE_URL) {
+  if (!process.env.DATABASE_URL || !process.env.DATABASE_URL.startsWith("postgres")) {
     return res.status(503).json({ success: false, error: "Database not configured" });
   }
 
@@ -82,7 +82,7 @@ app.get("/api/sponsorship", async (req, res) => {
 
 // DB Status API Endpoint
 app.get("/api/db-status", async (req, res) => {
-  if (!process.env.DATABASE_URL) {
+  if (!process.env.DATABASE_URL || !process.env.DATABASE_URL.startsWith("postgres")) {
     return res.status(503).json({ success: false, status: 'disconnected', error: "Database not configured" });
   }
 
