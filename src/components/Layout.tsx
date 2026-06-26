@@ -29,7 +29,8 @@ export const Navbar = () => {
   const navLinks = [
     { name: '협회소개', href: '/about' },
     { name: '주요사업', href: '/programs' },
-    { name: '후원안내', href: '/support' },
+    { name: '성공사례', href: '/success-stories' },
+    { name: '후원안내', href: '/donate' },
     { name: '공지사항', href: '/notices' },
     { name: '활동갤러리', href: '/gallery' },
   ];
@@ -100,7 +101,7 @@ export const Navbar = () => {
             </button>
           )}
 
-          <Link to="/support" className="bg-blue-600 text-white px-6 py-2.5 rounded-2xl text-sm font-bold hover:bg-blue-700 transition-all shadow-xl shadow-blue-600/30 hover:shadow-blue-600/50 active:scale-95">
+          <Link to="/donate" className="bg-blue-600 text-white px-6 py-2.5 rounded-2xl text-sm font-bold hover:bg-blue-700 transition-all shadow-xl shadow-blue-600/30 hover:shadow-blue-600/50 active:scale-95">
             후원하기
           </Link>
         </div>
@@ -167,7 +168,7 @@ export const Navbar = () => {
                 </button>
               )}
 
-              <Link to="/support" onClick={() => setIsMobileMenuOpen(false)} className="w-full bg-blue-600 text-white py-5 rounded-2xl font-bold text-center shadow-xl shadow-blue-600/30">
+              <Link to="/donate" onClick={() => setIsMobileMenuOpen(false)} className="w-full bg-blue-600 text-white py-5 rounded-2xl font-bold text-center shadow-xl shadow-blue-600/30">
                 후원하기
               </Link>
             </div>
@@ -221,7 +222,7 @@ export const Footer = () => {
               <li><Link to="/programs" className="hover:text-white hover:translate-x-1 transition-all inline-block">주요 사업</Link></li>
               <li><Link to="/notices" className="hover:text-white hover:translate-x-1 transition-all inline-block">공지사항</Link></li>
               <li><Link to="/gallery" className="hover:text-white hover:translate-x-1 transition-all inline-block">활동 갤러리</Link></li>
-              <li><Link to="/support" className="hover:text-white hover:translate-x-1 transition-all inline-block">후원 안내</Link></li>
+              <li><Link to="/donate" className="hover:text-white hover:translate-x-1 transition-all inline-block">후원 안내</Link></li>
             </ul>
           </div>
 

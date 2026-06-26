@@ -78,6 +78,30 @@ const AdminPage = () => {
   const [volunteers, setVolunteers] = useState<any[]>([]);
   const [pages, setPages] = useState<any[]>([]);
   const [usersList, setUsersList] = useState<any[]>([]);
+  const [dbStatus, setDbStatus] = useState<{ status: 'loading' | 'connected' | 'disconnected' | 'error', version?: string, message?: string }>({ status: 'loading' });
+
+  useEffect(() => {
+    if (activeTab === 'schema' || activeTab === 'dashboard') {
+      const checkDbStatus = async () => {
+        try {
+          const res = await fetch('/api/db-status');
+          const data = await res.json();
+          if (data.success && data.status === 'connected') {
+            setDbStatus({ status: 'connected', version: data.version });
+          } else {
+            setDbStatus({ status: 'disconnected', message: data.error || '연결 실패' });
+          }
+        } catch (err: any) {
+          setDbStatus({ status: 'error', message: err.message });
+        }
+      };
+      
+      checkDbStatus();
+      const intervalId = setInterval(checkDbStatus, 30000); // Check every 30 seconds
+      
+      return () => clearInterval(intervalId);
+    }
+  }, [activeTab]);
 
   useEffect(() => {
     if (feedback) {
@@ -1045,9 +1069,36 @@ const AdminPage = () => {
           {activeTab === 'schema' && (
             <>
               <header className="mb-10">
-                <h1 className="text-3xl font-bold text-gray-900">데이터베이스 스키마</h1>
-                <p className="text-gray-500 mt-1">현재 애플리케이션에서 사용하는 데이터 구조 정의입니다.</p>
+                <h1 className="text-3xl font-bold text-gray-900">데이터베이스 스키마 & 상태</h1>
+                <p className="text-gray-500 mt-1">현재 애플리케이션의 데이터 구조 및 PostgreSQL 실시간 상태입니다.</p>
               </header>
+
+              <div className="mb-10 flex gap-4">
+                <div className="bg-white p-6 rounded-3xl shadow-xl shadow-gray-200/50 border border-gray-100 flex-1 flex items-center gap-4">
+                  <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${
+                    dbStatus.status === 'connected' ? 'bg-emerald-50 text-emerald-600' :
+                    dbStatus.status === 'disconnected' ? 'bg-rose-50 text-rose-600' :
+                    'bg-amber-50 text-amber-600'
+                  }`}>
+                    <Database size={24} />
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-gray-900">PostgreSQL 연결 상태</h3>
+                    <p className="text-sm font-medium text-gray-500 flex items-center gap-2 mt-1">
+                      {dbStatus.status === 'loading' && <><Loader2 size={14} className="animate-spin" /> 상태 확인 중...</>}
+                      {dbStatus.status === 'connected' && <><span className="w-2 h-2 rounded-full bg-emerald-500"></span> 정상 연결됨 (Hyperdrive)</>}
+                      {dbStatus.status === 'disconnected' && <><span className="w-2 h-2 rounded-full bg-rose-500"></span> 연결 끊김</>}
+                      {dbStatus.status === 'error' && <><span className="w-2 h-2 rounded-full bg-rose-500"></span> 오류 발생</>}
+                    </p>
+                  </div>
+                </div>
+                {dbStatus.version && (
+                  <div className="bg-white p-6 rounded-3xl shadow-xl shadow-gray-200/50 border border-gray-100 flex-1">
+                    <h3 className="font-bold text-gray-900 mb-1">데이터베이스 버전</h3>
+                    <p className="text-sm text-gray-500 font-mono break-all">{dbStatus.version}</p>
+                  </div>
+                )}
+              </div>
 
               <div className="bg-gray-900 rounded-[2.5rem] p-8 shadow-2xl overflow-hidden border border-gray-800">
                 <pre className="text-emerald-400 font-mono text-sm overflow-x-auto whitespace-pre-wrap">

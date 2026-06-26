@@ -20,6 +20,7 @@ import {
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { db, OperationType, handleFirestoreError, collection, addDoc } from '../firebase';
+import { DonationTracker } from '../components/DonationTracker';
 
 const Hero = () => {
   return (
@@ -525,6 +526,7 @@ export default function Home() {
       <Hero />
       <AboutSection />
       <Stats />
+      <DonationTracker />
       <News />
       <Contact />
     </>

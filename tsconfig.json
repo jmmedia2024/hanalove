@@ -22,5 +22,6 @@
     },
     "allowImportingTsExtensions": true,
     "noEmit": true
-  }
+  },
+  "exclude": ["cloudflare_hyperdrive_worker.ts"]
 }
